@@ -117,5 +117,5 @@ jobs:
 
           git diff --staged --quiet || git commit -m "ci: update image tags to ${{ steps.tag.outputs.IMAGE_TAG }} [skip ci]"
 
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/i220878/microservices-demo.git HEAD:refs/heads/main --force-with-lease
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/i220878/microservices-demo.git HEAD:refs/heads/main --force
 
