@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: currencyservice
-          image: gcr.io/google-samples/microservices-demo/currencyservice:v0.10.3
+          image: us-docker.pkg.dev/google-samples/containers/gke/microservices-demo/currencyservice:v0.10.3
           ports:
             - containerPort: 7000
           env:
