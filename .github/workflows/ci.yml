@@ -1,0 +1,122 @@
+name: CI — Build and Push Docker Images
+
+# ── Trigger ───────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches:
+      - main     # Run on every push to the main branch
+    paths:
+      - 'src/**'          # Only run if source code changed
+      - 'docker/**'       # Or if a Dockerfile changed
+
+# ── Jobs ──────────────────────────────────────────────────────────────────────
+jobs:
+  build-and-push:
+    name: Build & Push All Images
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set a short Git SHA for use as the image tag
+      # This makes every build uniquely identifiable
+      - name: Set image tag
+        id: tag
+        run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      # Step 3: Log in to Docker Hub using the secrets you added
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Step 4: Set up Docker Buildx (enables multi-platform and caching)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ── Build and push each service ─────────────────────────────────────────
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.frontend
+          push: true
+          tags: |
+            i220878/frontend:${{ steps.tag.outputs.IMAGE_TAG }}
+            i220878/frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push productcatalogservice
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.productcatalogservice
+          push: true
+          tags: |
+            i220878/productcatalogservice:${{ steps.tag.outputs.IMAGE_TAG }}
+            i220878/productcatalogservice:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push cartservice
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.cartservice
+          push: true
+          tags: |
+            i220878/cartservice:${{ steps.tag.outputs.IMAGE_TAG }}
+            i220878/cartservice:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push recommendationservice
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/Dockerfile.recommendationservice
+          push: true
+          tags: |
+            i220878/recommendationservice:${{ steps.tag.outputs.IMAGE_TAG }}
+            i220878/recommendationservice:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Step 5: Update the Kubernetes manifests with the new image tag
+      # This is what triggers ArgoCD to deploy the new version
+      - name: Update image tags in Kubernetes manifests
+        run: |
+          IMAGE_TAG=${{ steps.tag.outputs.IMAGE_TAG }}
+
+          # Use sed to replace the image tag in each deployment file
+          sed -i "s|i220878/frontend:.*|i220878/frontend:${IMAGE_TAG}|g" \
+            k8s/frontend-deployment.yaml
+
+          sed -i "s|i220878/productcatalogservice:.*|i220878/productcatalogservice:${IMAGE_TAG}|g" \
+            k8s/productcatalogservice-deployment.yaml
+
+          sed -i "s|i220878/cartservice:.*|i220878/cartservice:${IMAGE_TAG}|g" \
+            k8s/cartservice-deployment.yaml
+
+          sed -i "s|i220878/recommendationservice:.*|i220878/recommendationservice:${IMAGE_TAG}|g" \
+            k8s/recommendationservice-deployment.yaml
+
+      # Step 6: Commit and push the updated manifests back to the repo
+      # ArgoCD will detect this commit and automatically redeploy
+      - name: Commit updated manifests
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add k8s/
+
+          # Only commit if there are actual changes
+          git diff --staged --quiet || git commit -m "ci: update image tags to ${{ steps.tag.outputs.IMAGE_TAG }} [skip ci]"
+
+          git push
+
