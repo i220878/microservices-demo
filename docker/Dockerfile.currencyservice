@@ -1,0 +1,20 @@
+FROM node:18-slim
+
+WORKDIR /app
+
+# Install build tools needed to compile native modules (pprof requires Python and g++)
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY src/currencyservice/package*.json ./
+
+RUN npm install --production
+
+COPY src/currencyservice/ .
+
+EXPOSE 7000
+
+ENTRYPOINT ["node", "server.js"]
