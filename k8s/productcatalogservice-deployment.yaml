@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: productcatalogservice
-          image: i220878/productcatalogservice:b768c55
+          image: i220878/productcatalogservice:104805e
           ports:
             - containerPort: 3550
           resources:
