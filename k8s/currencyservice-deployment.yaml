@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: currencyservice
-          image: i220878/currencyservice:latest
+          image: i220878/currencyservice:9aae076
           ports:
             - containerPort: 7000
           env:

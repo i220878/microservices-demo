@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: recommendationservice
-          image: i220878/recommendationservice:0a33aca
+          image: i220878/recommendationservice:9aae076
           ports:
             - containerPort: 8080
           env:
