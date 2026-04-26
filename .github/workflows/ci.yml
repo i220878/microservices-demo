@@ -115,8 +115,7 @@ jobs:
 
           git add k8s/
 
-          # Only commit if there are actual changes
           git diff --staged --quiet || git commit -m "ci: update image tags to ${{ steps.tag.outputs.IMAGE_TAG }} [skip ci]"
 
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/i220878/microservices-demo.git HEAD:main
 
