@@ -144,7 +144,8 @@ Terraform was run with `terraform init`, `terraform plan`, and `terraform apply`
 
 An SSH key pair was generated locally (`~/.ssh/project3-key`) and registered as an AWS key pair through Terraform. SSH access to the instance was verified before proceeding.
 
-**INSERT IMAGE OF `terraform apply` OUTPUT SHOWING EC2 IP**
+**Image of `terraform apply` output showing EC2 IP**
+
 ![Terraform](img/img1_terraform.png)
 
 ### Step 4 — Configuring the EC2 Instance with Ansible
@@ -165,7 +166,8 @@ The playbook was run with:
 ansible-playbook -i ansible/inventory.ini ansible/setup.yml
 ```
 
-**INSERT IMAGE OF ANSIBLE PLAYBOOK COMPLETING SUCCESSFULLY (all tasks ok/changed, no failures)**
+**Ansible playbook not available as setup is already complete at time of writing, current status of microk8s shown instead**
+
 ![Ansible playbook not available, current status of microk8s shown instead](img/img2_microk8s_status.png)
 
 ### Step 5 — Writing Kubernetes Manifests
@@ -194,7 +196,8 @@ i220878/recommendationservice
 i220878/currencyservice
 ```
 
-**INSERT IMAGE OF DOCKER HUB SHOWING ALL 5 REPOSITORIES**
+**Image of Docker Hub showing all 5 repositories**
+
 ![Docker Hub Images](img/img3_dockerhub.png)
 
 ### Step 7 — Installing and Configuring ArgoCD
@@ -212,7 +215,8 @@ The ArgoCD server service was patched to use `NodePort` for external access. The
 ArgoCD is accessible at: `https://3.220.169.0:31175`
 Credentials: username `admin`, password `C1MN5SJKxPOYqB80`
 
-**INSERT IMAGE OF ARGOCD LOGIN PAGE AT https://3.220.169.0:31175**
+**Image of ArgoCD Login Page at https://3.220.169.0:31175**
+
 ![ArgoCD Login Page on https://3.220.169.0:31175](img/img4_argocd_login.png)
 
 ### Step 8 — Configuring ArgoCD to Watch the Repository
@@ -228,7 +232,8 @@ An ArgoCD `Application` manifest (`argocd-app.yaml`) was written and applied to 
 microk8s kubectl apply -f ~/argocd-app.yaml
 ```
 
-**INSERT IMAGE OF ARGOCD DASHBOARD SHOWING microservices-demo APP AS "Synced" AND "Healthy"**
+**Image of ArgoCD Dashboard showing `microservices-demo` app as "Synced" and "Healthy"**
+
 ![ArgoCD Main Dashboard](img/img5_1_argocd_dashboard.png)
 
 ![ArgoCD Containers](img/img5_2_argocd_containers.png)
@@ -253,7 +258,8 @@ Several issues were encountered and resolved during this step:
 
 After resolving these issues, the full pipeline runs successfully on every code push.
 
-**INSERT IMAGE OF GITHUB ACTIONS SHOWING A SUCCESSFUL WORKFLOW RUN WITH ALL STEPS GREEN**
+**Image of Github Actions showing a successful workflow run with green status**
+
 ![Github Workflow showing successful building of images](img/img6_github_cicd.png)
 
 ---
@@ -272,7 +278,8 @@ The application is fully deployed and accessible. The complete CI/CD loop is ope
 | **GitHub Actions Workflows** | `https://github.com/i220878/microservices-demo/actions` |
 | **Docker Hub Images** | `https://hub.docker.com/u/i220878` |
 
-**INSERT IMAGE OF THE ONLINE BOUTIQUE FRONTEND RUNNING AT http://3.220.169.0:30080**
+**Image of the Online Boutique Frontend running at http://3.220.169.0:30080**
+
 ![Working Frontend](img/img7_frontend.png)
 
 ### Verification Commands
@@ -288,7 +295,8 @@ microk8s kubectl get pods -n default
 ```
 Expected output: all 5 pods showing `Running` and `1/1` READY.
 
-**INSERT IMAGE OF `kubectl get pods` OUTPUT SHOWING ALL 5 PODS RUNNING**
+**Image of `kubectl get pods` output showing all 5 pods running**
+
 ![Output of kubectl get pods](img/img8_get_pods.png)
 
 **Check all services are created:**
@@ -297,7 +305,8 @@ microk8s kubectl get services -n default
 ```
 Expected output: all 5 services listed, with `frontend` showing `NodePort` and port `30080`.
 
-**INSERT IMAGE OF `kubectl get services` OUTPUT**
+**Image of `kubectl get services` output**
+
 ![Output of kubectl get services](img/img9_get_services)
 
 **Check ArgoCD application sync status:**
@@ -306,7 +315,8 @@ argocd app get microservices-demo
 ```
 Expected output: `Sync Status: Synced`, `Health Status: Healthy`.
 
-**INSERT IMAGE OF `argocd app get microservices-demo` OUTPUT**
+**Image of `argocd app get microservices-demo` output**
+
 ![Output of argocd app get microservices-demo](img/img10_argocd.png)
 
 **Check microk8s cluster node status:**
@@ -315,7 +325,8 @@ microk8s kubectl get nodes
 ```
 Expected output: one node with status `Ready`.
 
-**INSERT IMAGE OF `kubectl get nodes` OUTPUT**
+**Image of `kubectl get nodes` output**
+
 ![Output of kubectl get nodes](img/img11_get_nodes.png)
 
 
