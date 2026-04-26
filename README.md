@@ -145,6 +145,7 @@ Terraform was run with `terraform init`, `terraform plan`, and `terraform apply`
 An SSH key pair was generated locally (`~/.ssh/project3-key`) and registered as an AWS key pair through Terraform. SSH access to the instance was verified before proceeding.
 
 **INSERT IMAGE OF `terraform apply` OUTPUT SHOWING EC2 IP**
+![Terraform](img/img1_terraform.png)
 
 ### Step 4 — Configuring the EC2 Instance with Ansible
 
@@ -165,6 +166,7 @@ ansible-playbook -i ansible/inventory.ini ansible/setup.yml
 ```
 
 **INSERT IMAGE OF ANSIBLE PLAYBOOK COMPLETING SUCCESSFULLY (all tasks ok/changed, no failures)**
+![Ansible playbook not available, current status of microk8s shown instead](img/img2_microk8s_status.png)
 
 ### Step 5 — Writing Kubernetes Manifests
 
@@ -193,6 +195,7 @@ i220878/currencyservice
 ```
 
 **INSERT IMAGE OF DOCKER HUB SHOWING ALL 5 REPOSITORIES**
+![Docker Hub Images](img/img3_dockerhub.png)
 
 ### Step 7 — Installing and Configuring ArgoCD
 
@@ -210,6 +213,7 @@ ArgoCD is accessible at: `https://3.220.169.0:31175`
 Credentials: username `admin`, password `C1MN5SJKxPOYqB80`
 
 **INSERT IMAGE OF ARGOCD LOGIN PAGE AT https://3.220.169.0:31175**
+![ArgoCD Login Page on https://3.220.169.0:31175](img/img4_argocd_login.png)
 
 ### Step 8 — Configuring ArgoCD to Watch the Repository
 
@@ -225,6 +229,9 @@ microk8s kubectl apply -f ~/argocd-app.yaml
 ```
 
 **INSERT IMAGE OF ARGOCD DASHBOARD SHOWING microservices-demo APP AS "Synced" AND "Healthy"**
+![ArgoCD Main Dashboard](img/img5_1_argocd_dashboard.png)
+
+![ArgoCD Containers](img/img5_2_argocd_containers.png)
 
 ### Step 9 — Setting Up the GitHub Actions CI Pipeline
 
@@ -247,6 +254,7 @@ Several issues were encountered and resolved during this step:
 After resolving these issues, the full pipeline runs successfully on every code push.
 
 **INSERT IMAGE OF GITHUB ACTIONS SHOWING A SUCCESSFUL WORKFLOW RUN WITH ALL STEPS GREEN**
+![Github Workflow showing successful building of images](img/img6_github_cicd.png)
 
 ---
 
@@ -265,6 +273,7 @@ The application is fully deployed and accessible. The complete CI/CD loop is ope
 | **Docker Hub Images** | `https://hub.docker.com/u/i220878` |
 
 **INSERT IMAGE OF THE ONLINE BOUTIQUE FRONTEND RUNNING AT http://3.220.169.0:30080**
+![Working Frontend](img/img7_frontend.png)
 
 ### Verification Commands
 
@@ -280,6 +289,7 @@ microk8s kubectl get pods -n default
 Expected output: all 5 pods showing `Running` and `1/1` READY.
 
 **INSERT IMAGE OF `kubectl get pods` OUTPUT SHOWING ALL 5 PODS RUNNING**
+![Output of kubectl get pods](img/img8_get_pods.png)
 
 **Check all services are created:**
 ```bash
@@ -288,6 +298,7 @@ microk8s kubectl get services -n default
 Expected output: all 5 services listed, with `frontend` showing `NodePort` and port `30080`.
 
 **INSERT IMAGE OF `kubectl get services` OUTPUT**
+![Output of kubectl get services](img/img9_get_services)
 
 **Check ArgoCD application sync status:**
 ```bash
@@ -296,6 +307,7 @@ argocd app get microservices-demo
 Expected output: `Sync Status: Synced`, `Health Status: Healthy`.
 
 **INSERT IMAGE OF `argocd app get microservices-demo` OUTPUT**
+![Output of argocd app get microservices-demo](img/img10_argocd.png)
 
 **Check microk8s cluster node status:**
 ```bash
@@ -303,13 +315,15 @@ microk8s kubectl get nodes
 ```
 Expected output: one node with status `Ready`.
 
+**INSERT IMAGE OF `kubectl get nodes` OUTPUT**
+![Output of kubectl get nodes](img/img11_get_nodes.png)
+
+
 **Watch a live deployment rollout (trigger after a code push):**
 ```bash
 microk8s kubectl get pods -w
 ```
 This streams pod status in real time. After a CI pipeline run completes, old pods will show `Terminating` and new ones will appear with `ContainerCreating` then `Running`, demonstrating the automated CD loop.
-
-**INSERT IMAGE OF `kubectl get pods -w` SHOWING OLD POD TERMINATING AND NEW POD STARTING**
 
 ### CI/CD End-to-End Flow Summary
 
