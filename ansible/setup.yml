@@ -1,0 +1,138 @@
+---
+- name: Configure EC2 instance for microk8s and Docker
+  hosts: k8s_node
+  become: true   # Run all tasks as root (sudo)
+
+  tasks:
+
+    # ── System Updates ────────────────────────────────────────────────────────
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+
+    # ── Install System Dependencies ───────────────────────────────────────────
+    - name: Install required system packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - snapd
+        state: present
+
+    # ── Install Docker ────────────────────────────────────────────────────────
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+        state: present
+
+    - name: Install Docker CE
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Enable and start Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add ubuntu user to docker group (allows running docker without sudo)
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # ── Install microk8s ──────────────────────────────────────────────────────
+    - name: Install microk8s via snap (classic confinement)
+      snap:
+        name: microk8s
+        classic: yes
+        channel: "1.28/stable"
+
+    - name: Add ubuntu user to microk8s group
+      user:
+        name: ubuntu
+        groups: microk8s
+        append: yes
+
+    - name: Wait for microk8s to be ready (this can take 2-3 minutes)
+      command: microk8s status --wait-ready
+      timeout: 300
+      changed_when: false
+
+    # ── Enable microk8s Add-ons ───────────────────────────────────────────────
+    - name: Enable DNS add-on (required for pod-to-pod name resolution)
+      command: microk8s enable dns
+      changed_when: false
+
+    - name: Enable storage add-on (provides PersistentVolume support)
+      command: microk8s enable storage
+      changed_when: false
+
+    - name: Enable ingress add-on (allows external HTTP routing)
+      command: microk8s enable ingress
+      changed_when: false
+
+    # ── Set Up kubectl ────────────────────────────────────────────────────────
+    - name: Create .kube directory for ubuntu user
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Export microk8s kubeconfig to ubuntu user's home
+      shell: microk8s config > /home/ubuntu/.kube/config
+      changed_when: false
+
+    - name: Set correct ownership on kubeconfig
+      file:
+        path: /home/ubuntu/.kube/config
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+
+    - name: Create kubectl alias (microk8s.kubectl is the actual binary)
+      lineinfile:
+        path: /home/ubuntu/.bashrc
+        line: "alias kubectl='microk8s kubectl'"
+        create: yes
+
+    # ── Install Helm (required for ArgoCD installation) ───────────────────────
+    - name: Download Helm installation script
+      get_url:
+        url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        dest: /tmp/get-helm-3.sh
+        mode: '0700'
+
+    - name: Run Helm installation script
+      command: /tmp/get-helm-3.sh
+      changed_when: false
+
+    - name: Verify Helm installation
+      command: helm version
+      changed_when: false
+      register: helm_version
+
+    - name: Print Helm version
+      debug:
+        msg: "{{ helm_version.stdout }}"
+

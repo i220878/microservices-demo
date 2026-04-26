@@ -1,0 +1,28 @@
+# ── Stage 1: Build ──────────────────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS builder
+
+WORKDIR /app
+
+# Copy the .csproj first to restore packages (layer cache optimization)
+COPY src/cartservice/src/*.csproj ./src/
+
+RUN dotnet restore ./src/
+
+# Copy the rest of the source
+COPY src/cartservice/src/ ./src/
+
+WORKDIR /app/src
+
+RUN dotnet publish -c Release -o /app/publish
+
+# ── Stage 2: Runtime ─────────────────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+
+WORKDIR /app
+
+COPY --from=builder /app/publish .
+
+# gRPC port
+EXPOSE 7070
+
+ENTRYPOINT ["dotnet", "cartservice.dll"]

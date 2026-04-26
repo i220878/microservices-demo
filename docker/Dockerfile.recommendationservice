@@ -1,0 +1,18 @@
+# ── Runtime only — Python does not need a separate build stage ───────────────
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy requirements and install dependencies first (layer cache optimization)
+COPY src/recommendationservice/requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the source
+COPY src/recommendationservice/ .
+
+# gRPC port
+EXPOSE 8080
+
+ENTRYPOINT ["python", "recommendation_server.py"]
+

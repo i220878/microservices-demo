@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: productcatalogservice
+  namespace: default
+spec:
+  # ClusterIP is sufficient — only the frontend calls this service,
+  # and it does so using the service name as a DNS hostname
+  type: ClusterIP
+  selector:
+    app: productcatalogservice
+  ports:
+    - protocol: TCP
+      port: 3550
+      targetPort: 3550
+

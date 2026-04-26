@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservices-demo
+  namespace: argocd
+spec:
+  project: default
+
+  # ── Source: where ArgoCD reads manifests from ────────────────────────────────
+  source:
+    repoURL: https://github.com/i220878/microservices-demo.git
+    targetRevision: HEAD      # Always track the latest commit on the default branch
+    path: k8s                 # The folder in the repo that contains your YAML files
+
+  # ── Destination: which cluster and namespace to deploy to ────────────────────
+  destination:
+    server: https://kubernetes.default.svc   # The local cluster ArgoCD is running in
+    namespace: default
+
+  # ── Sync Policy: automated keeps ArgoCD in sync automatically ────────────────
+  syncPolicy:
+    automated:
+      prune: true      # Remove resources from the cluster that are deleted from Git
+      selfHeal: true   # Re-apply if someone manually changes the cluster state
+
