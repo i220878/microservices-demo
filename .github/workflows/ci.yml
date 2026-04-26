@@ -113,12 +113,9 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin main
-          git reset --soft origin/main
-
           git add k8s/
 
           git diff --staged --quiet || git commit -m "ci: update image tags to ${{ steps.tag.outputs.IMAGE_TAG }} [skip ci]"
 
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/i220878/microservices-demo.git HEAD:main --force
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/i220878/microservices-demo.git HEAD:refs/heads/main --force-with-lease
 
