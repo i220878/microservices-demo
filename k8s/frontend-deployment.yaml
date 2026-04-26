@@ -35,6 +35,8 @@ spec:
               value: "adservice:9555"
             - name: SHIPPING_SERVICE_ADDR
               value: "shippingservice:50051"
+            - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+              value: "shoppingassistantservice:80"
             - name: ENV_PLATFORM
               value: "local"
             - name: DISABLE_TRACING
