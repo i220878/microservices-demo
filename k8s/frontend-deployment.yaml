@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: i220878/frontend:1820209
+          image: i220878/frontend:c33d931
           ports:
             - containerPort: 8080
           env:
